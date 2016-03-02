@@ -28,13 +28,17 @@
 				'} ' +
 				'ORDER BY ASC (?name) ';
 
+			return this.buildPrefixes() + ' ' + sparql;
+		},
+
+		buildPrefixes: function() {
 			var prefixes = '';
 
 			$.each( this.queryPrefixes, function( key, value ) {
 				prefixes += 'PREFIX ' + key + ':' + value + ' ';
 			} );
 
-			return prefixes + ' ' + sparql;
+			return prefixes;
 		},
 
 		query: function() {
