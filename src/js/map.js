@@ -1,7 +1,5 @@
 ( function( $, L ) {
 
-	var self = this;
-
 	var queryApi = {
 
 		queryPrefixes: {
@@ -13,10 +11,9 @@
 			psv: '<http://www.wikidata.org/prop/statement/value/>'
 		},
 
-		buildSparql: function() {
+		buildSparql: function( itemQId ) {
 			var sparql = 'SELECT DISTINCT ?item ?name ?lat ?lon WHERE { ' +
-				'?item wdt:P131* wd:Q61 .' +
-				'?item wdt:P31/wdt:P279* wd:Q33506 . ' +
+				'?item wdt:P31 wd:' + itemQId + ' . ' +
 				'?item p:P625 ?coordinate . ' +
 				'?coordinate psv:P625 ?coordinate_node . ' +
 				'?coordinate_node wikibase:geoLatitude ?lat . ' +
@@ -26,7 +23,8 @@
 						'?item rdfs:label ?name ' +
 					'} ' +
 				'} ' +
-				'ORDER BY ASC (?name) ';
+				'ORDER BY ASC (?name) ' +
+				'LIMIT 5000';
 
 			return this.buildPrefixes() + ' ' + sparql;
 		},
@@ -41,8 +39,8 @@
 			return prefixes;
 		},
 
-		query: function() {
-			var sparqlQuery = queryApi.buildSparql(),
+		query: function( itemQId ) {
+			var sparqlQuery = queryApi.buildSparql( itemQId ),
 				baseURI = 'https://query.wikidata.org/sparql',
 				queryUrl = baseURI + '?query=' + encodeURIComponent( sparqlQuery ) + '&format=json';
 
@@ -51,7 +49,7 @@
 				dataType: 'json'
 			} )
 			.done( function( res ) {
-				view.render( res );
+				view.renderMarkers( res );
 			} )
 			.fail( function( jqXHR, textStatus ) {
 				console.log( 'Request failed: ' + textStatus );
@@ -62,15 +60,16 @@
 	var view = {
 		map: null,
 
-		render: function( data ) {
-			markerGroup = this.getMarkerGroup( data );
+		render: function() {
+			view.renderTileLayer();
+			queryApi.query( itemId );
+		},
 
+		renderTileLayer: function() {
 			map = L.map( 'map', {
 				center: [0, 0],
 				zoom: 3
-			} ).fitBounds( markerGroup.getBounds() );
-
-			markerGroup.addTo( map );
+			} );
 
 			L.tileLayer( 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png', {
 				attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
@@ -78,15 +77,35 @@
 			} ).addTo( map );
 		},
 
+		renderMarkers: function( data ) {
+			markerGroup = this.getMarkerGroup( data );
+
+			map.fitBounds( markerGroup.getBounds() );
+			markerGroup.addTo( map );
+		},
+
 		getMarkerGroup: function( data ) {
-			var markers = [];
+			var markers = [],
+				idPattern = /^http:\/\/www.wikidata.org\/entity\/([PQ]\d+)$/i;
 
 			$.each( data.results.bindings, function( key, result ) {
 				var lat = result.lat.value,
-					lon = result.lon.value;
+					lon = result.lon.value,
+					matches = result.item.value.match( idPattern ),
+					qId = matches[1],
+					itemUrl = 'https://www.wikidata.org/wiki/' + qId;
+
+				var popupHtml = '<a href="' + itemUrl + '">' +
+					result.name.value + '</a> (' + qId + ')';
 
 				markers.push(
-					L.marker( [lat, lon] ).bindPopup( result.name.value )
+					// L.marker( [lat, lon] ).bindPopup( popupHtml )
+					L.circle( [lat, lon], 8, {
+						color: '#ed2700',
+						opacity: 0.9,
+						fillColor: '#ed2700',
+						fillOpacity: 0.9
+					} ).bindPopup( popupHtml )
 				);
 			} );
 
@@ -94,6 +113,6 @@
 		}
 	};
 
-	$( queryApi.query );
+	$( view.render );
 
 } )( jQuery, L );
