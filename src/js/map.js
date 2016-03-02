@@ -15,7 +15,7 @@
 
 		buildSparql: function() {
 			var sparql = 'SELECT DISTINCT ?item ?name ?lat ?lon WHERE { ' +
-				'?item wdt:P131* wd:Q60 .' +
+				'?item wdt:P131* wd:Q61 .' +
 				'?item wdt:P31/wdt:P279* wd:Q33506 . ' +
 				'?item p:P625 ?coordinate . ' +
 				'?coordinate psv:P625 ?coordinate_node . ' +
@@ -42,7 +42,7 @@
 		},
 
 		query: function() {
-			var sparqlQuery = this.buildSparql(),
+			var sparqlQuery = queryApi.buildSparql(),
 				baseURI = 'https://query.wikidata.org/sparql',
 				queryUrl = baseURI + '?query=' + encodeURIComponent( sparqlQuery ) + '&format=json';
 
@@ -51,7 +51,7 @@
 				dataType: 'json'
 			} )
 			.done( function( res ) {
-				view.addResults( res );
+				view.render( res );
 			} )
 			.fail( function( jqXHR, textStatus ) {
 				console.log( 'Request failed: ' + textStatus );
@@ -62,13 +62,15 @@
 	var view = {
 		map: null,
 
-		render: function() {
+		render: function( data ) {
+			markerGroup = this.getMarkerGroup( data );
+
 			map = L.map( 'map', {
 				center: [0, 0],
 				zoom: 3
-			} );
+			} ).fitBounds( markerGroup.getBounds() );
 
-			queryApi.query();
+			markerGroup.addTo( map );
 
 			L.tileLayer( 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png', {
 				attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
@@ -76,7 +78,7 @@
 			} ).addTo( map );
 		},
 
-		addResults: function( data ) {
+		getMarkerGroup: function( data ) {
 			var markers = [];
 
 			$.each( data.results.bindings, function( key, result ) {
@@ -88,13 +90,10 @@
 				);
 			} );
 
-			var markerGroup = L.featureGroup( markers );
-
-			markerGroup.addTo( map );
-			map.fitBounds( markerGroup.getBounds() );
+			return L.featureGroup( markers );
 		}
 	};
 
-	$( view.render );
+	$( queryApi.query );
 
 } )( jQuery, L );
