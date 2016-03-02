@@ -24,7 +24,7 @@
 					'} ' +
 				'} ' +
 				'ORDER BY ASC (?name) ' +
-				'LIMIT 5000';
+				'LIMIT 10000';
 
 			return this.buildPrefixes() + ' ' + sparql;
 		},
