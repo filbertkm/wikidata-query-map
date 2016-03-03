@@ -84,28 +84,36 @@
 			markerGroup.addTo( map );
 		},
 
+		getPopupHtml: function( result ) {
+			var container = document.createElement( 'div' ),
+				idPattern = /^http:\/\/www.wikidata.org\/entity\/([PQ]\d+)$/i,
+				matches = result.item.value.match( idPattern ),
+				qId = matches[1],
+				itemUrl = 'https://www.wikidata.org/wiki/' + qId,
+				link = document.createElement( 'a' );
+
+			link.setAttribute( 'href', itemUrl );
+			link.appendChild( document.createTextNode( result.name.value ) );
+
+			container.appendChild( link );
+
+			return container.innerHTML + ' (' + qId + ')';
+		},
+
 		getMarkerGroup: function( data ) {
-			var markers = [],
-				idPattern = /^http:\/\/www.wikidata.org\/entity\/([PQ]\d+)$/i;
+			var markers = [];
 
 			$.each( data.results.bindings, function( key, result ) {
 				var lat = result.lat.value,
-					lon = result.lon.value,
-					matches = result.item.value.match( idPattern ),
-					qId = matches[1],
-					itemUrl = 'https://www.wikidata.org/wiki/' + qId;
-
-				var popupHtml = '<a href="' + itemUrl + '">' +
-					result.name.value + '</a> (' + qId + ')';
+					lon = result.lon.value;
 
 				markers.push(
-					// L.marker( [lat, lon] ).bindPopup( popupHtml )
 					L.circle( [lat, lon], 8, {
 						color: '#ed2700',
 						opacity: 0.9,
 						fillColor: '#ed2700',
 						fillOpacity: 0.9
-					} ).bindPopup( popupHtml )
+					} ).bindPopup( view.getPopupHtml( result ) )
 				);
 			} );
 
