@@ -67,7 +67,7 @@
 
 		renderTileLayer: function() {
 			map = L.map( 'map', {
-				center: [0, 0],
+				center: [15, 0],
 				zoom: 3
 			} );
 
