@@ -24,7 +24,7 @@
 					'} ' +
 				'} ' +
 				'ORDER BY ASC (?name) ' +
-				'LIMIT 10000';
+				'LIMIT 50000';
 
 			return this.buildPrefixes() + ' ' + sparql;
 		},
@@ -78,10 +78,7 @@
 		},
 
 		renderMarkers: function( data ) {
-			markerGroup = this.getMarkerGroup( data );
-
-			map.fitBounds( markerGroup.getBounds() );
-			markerGroup.addTo( map );
+			this.getMarkerGroup( data ).addTo( map );
 		},
 
 		getPopupHtml: function( result ) {
