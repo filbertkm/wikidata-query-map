@@ -2,8 +2,8 @@
 module.exports = function ( grunt ) {
 	'use strict';
 
+	grunt.loadNpmTasks( 'grunt-browserify' );
 	grunt.loadNpmTasks( 'grunt-contrib-clean' );
-	grunt.loadNpmTasks( 'grunt-contrib-concat' );
 	grunt.loadNpmTasks( 'grunt-contrib-copy' );
 	grunt.loadNpmTasks( 'grunt-contrib-jshint' );
 	grunt.loadNpmTasks( 'grunt-contrib-uglify' );
@@ -36,14 +36,14 @@ module.exports = function ( grunt ) {
 			main: {
 				expand: true,
 				cwd: 'src',
-				src: '**',
+				src: [ '**', '!js/**/*' ],
 				dest: 'public/'
 			}
 		},
-		concat: {
-			js: {
+		browserify: {
+			dist: {
 				files: {
-//					'public/js/main.js': 'src/**/*.js'
+					'public/js/map.js': [ 'src/js/map.js' ]
 				}
 			}
 		},
@@ -61,6 +61,6 @@ module.exports = function ( grunt ) {
 	} );
 
 	grunt.registerTask( 'test', [ 'jshint', 'jscs', 'jsonlint' ] );
-	grunt.registerTask( 'build', [ 'test', 'clean', 'copy', 'concat', 'uglify', 'useref' ] );
+	grunt.registerTask( 'build', [ 'test', 'clean', 'copy', 'browserify', 'uglify', 'useref' ] );
 	grunt.registerTask( 'default', 'test' );
 };

@@ -1,68 +1,23 @@
-( function( $, L ) {
+( function( L ) {
 
-	var queryApi = {
-
-		queryPrefixes: {
-			wd: '<http://www.wikidata.org/entity/>',
-			wdt: '<http://www.wikidata.org/prop/direct/>',
-			wikibase: '<http://wikiba.se/ontology#>',
-			p: '<http://www.wikidata.org/prop/>',
-			rdfs: '<http://www.w3.org/2000/01/rdf-schema#>',
-			psv: '<http://www.wikidata.org/prop/statement/value/>'
-		},
-
-		buildSparql: function( itemQId ) {
-			var sparql = 'SELECT DISTINCT ?item ?name ?lat ?lon WHERE { ' +
-				'?item wdt:P31 wd:' + itemQId + ' . ' +
-				'?item p:P625 ?coordinate . ' +
-				'?coordinate psv:P625 ?coordinate_node . ' +
-				'?coordinate_node wikibase:geoLatitude ?lat . ' +
-				'?coordinate_node wikibase:geoLongitude ?lon . ' +
-					'SERVICE wikibase:label { ' +
-						'bd:serviceParam wikibase:language "en" . ' +
-						'?item rdfs:label ?name ' +
-					'} ' +
-				'} ' +
-				'ORDER BY ASC (?name) ' +
-				'LIMIT 100000';
-
-			return this.buildPrefixes() + ' ' + sparql;
-		},
-
-		buildPrefixes: function() {
-			var prefixes = '';
-
-			$.each( this.queryPrefixes, function( key, value ) {
-				prefixes += 'PREFIX ' + key + ':' + value + ' ';
-			} );
-
-			return prefixes;
-		},
-
-		query: function( itemQId ) {
-			var sparqlQuery = queryApi.buildSparql( itemQId ),
-				baseURI = 'https://query.wikidata.org/sparql',
-				queryUrl = baseURI + '?query=' + encodeURIComponent( sparqlQuery ) + '&format=json';
-
-			$.ajax( {
-				url: queryUrl,
-				dataType: 'json'
-			} )
-			.done( function( res ) {
-				view.renderMarkers( res );
-			} )
-			.fail( function( jqXHR, textStatus ) {
-				console.log( 'Request failed: ' + textStatus );
-			} );
-		}
-	};
+	var $ = require( 'jquery' ),
+		WikidataQuery = require( './wikidata-query.js' );
 
 	var view = {
 		map: null,
 
 		render: function() {
+			var wikidataQuery = new WikidataQuery( $ );
+
 			view.renderTileLayer();
-			queryApi.query( itemId );
+
+			wikidataQuery.query( itemId )
+				.done( function( res ) {
+					view.renderMarkers( res );
+				} )
+				.fail( function( jqXHR, textStatus ) {
+					console.log( 'Request failed: ' + textStatus );
+				} );
 		},
 
 		renderTileLayer: function() {
@@ -120,4 +75,4 @@
 
 	$( view.render );
 
-} )( jQuery, L );
+} )( L );
