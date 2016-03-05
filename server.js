@@ -1,23 +1,30 @@
-var express = require( 'express' );
-var app = express();
+var config = require( './config.json' ),
+    express = require( 'express' ),
+	app = express();
 
-app.use( express.static( 'public' ) );
+if ( process.env.TOOL_WEB_PORT != undefined ) {
+  config.port = parseInt( process.env.TOOL_WEB_PORT, 10 );
+}
+
+app.use( config.basePath, express.static( 'public' ) );
 app.set( 'view engine', 'jade' );
 
-app.get( '/:id', function( req, res ) {
-  res.render('index', {
+app.get( config.basePath + '/:id', function( req, res ) {
+  res.render( 'index', {
     title: 'Wikidata Maps',
-	itemId: req.params.id
+	itemId: req.params.id,
+	basePath: config.basePath
   } );
 } );
 
-app.get( '/', function ( req, res ) {
-  res.render('index', {
+app.get( config.basePath + '/', function ( req, res ) {
+  res.render( 'index', {
   	title: 'Wikidata Maps',
-	itemId: 'Q33506'
+	itemId: 'Q33506',
+	basePath: config.basePath
   } );
 } );
 
-app.listen( 3000, function () {
-  console.log( 'Example app listening on port 3000!' );
+app.listen( config.port, function () {
+  console.log( 'Example app listening on port ' + config.port );
 } );
