@@ -9,7 +9,7 @@ if ( process.env.TOOL_WEB_PORT != undefined ) {
 app.use( config.basePath, express.static( 'public' ) );
 app.set( 'view engine', 'jade' );
 
-app.get( config.basePath + '/:id', function( req, res ) {
+app.get( config.basePath + ':id', function( req, res ) {
   res.render( 'index', {
     title: 'Wikidata Maps',
 	itemId: req.params.id,
@@ -17,7 +17,7 @@ app.get( config.basePath + '/:id', function( req, res ) {
   } );
 } );
 
-app.get( config.basePath + '/', function ( req, res ) {
+app.get( config.basePath, function ( req, res ) {
   res.render( 'index', {
   	title: 'Wikidata Maps',
 	itemId: 'Q33506',
