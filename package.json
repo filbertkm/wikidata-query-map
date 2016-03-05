@@ -12,6 +12,7 @@
     "express": "^4.13.4",
     "jade": "^1.11.0",
     "jquery": "^2.2.1",
+    "leaflet": "^0.7.7",
     "request": "^2.69.0"
   },
   "devDependencies": {

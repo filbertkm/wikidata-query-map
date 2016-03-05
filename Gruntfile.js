@@ -38,6 +38,12 @@ module.exports = function ( grunt ) {
 				cwd: 'src',
 				src: [ '**', '!js/**/*' ],
 				dest: 'public/'
+			},
+			leaflet: {
+				expand: true,
+				cwd: 'node_modules/leaflet/dist',
+				src: [ '**' ],
+				dest: 'public/leaflet/'
 			}
 		},
 		browserify: {
@@ -61,6 +67,7 @@ module.exports = function ( grunt ) {
 	} );
 
 	grunt.registerTask( 'test', [ 'jshint', 'jscs', 'jsonlint' ] );
-	grunt.registerTask( 'build', [ 'test', 'clean', 'copy', 'browserify', 'uglify', 'useref' ] );
+	grunt.registerTask( 'copyall', [ 'copy:main', 'copy:leaflet' ] );
+	grunt.registerTask( 'build', [ 'test', 'clean', 'copyall', 'browserify', 'uglify', 'useref' ] );
 	grunt.registerTask( 'default', 'test' );
 };

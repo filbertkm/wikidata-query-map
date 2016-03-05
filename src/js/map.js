@@ -1,6 +1,7 @@
-( function( L ) {
+( function() {
 
 	var $ = require( 'jquery' ),
+		L = require( 'leaflet' ),
 		WikidataQuery = require( './wikidata-query.js' );
 
 	var view = {
@@ -73,6 +74,8 @@
 		}
 	};
 
+	L.Icon.Default.imagePath = 'leaflet/images/';
+
 	$( view.render );
 
-} )( L );
+} )();
