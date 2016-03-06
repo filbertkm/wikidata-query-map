@@ -4,6 +4,7 @@
   "description": "Visualize Wikidata Query results",
   "main": "app.js",
   "scripts": {
+    "prestart": "grunt build",
     "test": "grunt test"
   },
   "author": "Katie Filbert",

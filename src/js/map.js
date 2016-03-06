@@ -2,7 +2,52 @@
 
 	var $ = require( 'jquery' ),
 		L = require( 'leaflet' ),
-		WikidataQuery = require( './wikidata-query.js' );
+		WikidataQuery = require( './wikidata-query.js' ),
+		LabelLookup = require( './LabelLookup.js' );
+
+	var linkBuilder = {
+
+		makeItemLink: function( itemId, label ) {
+			var itemUrl = 'https://www.wikidata.org/wiki/' + itemId,
+				container = document.createElement( 'div' ),
+				link = document.createElement( 'a' );
+
+			link.setAttribute( 'href', itemUrl );
+			link.appendChild( document.createTextNode( label ) );
+
+			container.appendChild( link );
+
+			return container;
+		}
+
+	};
+
+	var InfoControl = L.Control.extend( {
+
+		itemId: null,
+		label: null,
+
+		initialize: function( itemId, label, options ) {
+			this.itemId = itemId;
+			this.label = label;
+
+			L.Util.setOptions( options );
+		},
+
+		onAdd: function( map ) {
+			var itemLink = linkBuilder.makeItemLink( this.itemId, this.label );
+
+			this._div = L.DomUtil.create( 'div', 'info-control' );
+			this.update( itemLink.innerHTML );
+
+			return this._div;
+		},
+
+		update: function ( label ) {
+			this._div.innerHTML = label;
+		}
+
+	} );
 
 	var view = {
 		map: null,
@@ -11,6 +56,7 @@
 			var wikidataQuery = new WikidataQuery( $ );
 
 			view.renderTileLayer();
+			view.renderControlPanel( itemId );
 
 			wikidataQuery.query( itemId )
 				.done( function( res ) {
@@ -33,24 +79,28 @@
 			} ).addTo( map );
 		},
 
+		renderControlPanel: function( itemId ) {
+			var labelLookup = new LabelLookup();
+
+			labelLookup.get( itemId, 'en' )
+				.done( function( res ) {
+					var label = res.entities[itemId].labels.en.value;
+						control = new InfoControl( itemId, label, {} );
+
+					map.addControl( control );
+				} );
+		},
+
 		renderMarkers: function( data ) {
 			this.getMarkerGroup( data ).addTo( map );
 		},
 
 		getPopupHtml: function( result ) {
-			var container = document.createElement( 'div' ),
-				idPattern = /^http:\/\/www.wikidata.org\/entity\/([PQ]\d+)$/i,
+			var idPattern = /^http:\/\/www.wikidata.org\/entity\/([PQ]\d+)$/i,
 				matches = result.item.value.match( idPattern ),
-				qId = matches[1],
-				itemUrl = 'https://www.wikidata.org/wiki/' + qId,
-				link = document.createElement( 'a' );
+				qId = matches[1];
 
-			link.setAttribute( 'href', itemUrl );
-			link.appendChild( document.createTextNode( result.name.value ) );
-
-			container.appendChild( link );
-
-			return container.innerHTML + ' (' + qId + ')';
+			return linkBuilder.makeItemLink( qId, result.name.value );
 		},
 
 		getMarkerGroup: function( data ) {

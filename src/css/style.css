@@ -6,3 +6,16 @@ body {
 html, body, #map {
   height: 100%;
 }
+
+.info-control {
+  background: rgba(255,255,255,0.8);
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  border-radius: 5px;
+  width: 200px;
+  padding: 12px;
+  font-size: 20px;
+}
+
+.info-control a {
+  text-decoration: none;
+}
