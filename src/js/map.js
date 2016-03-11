@@ -107,20 +107,20 @@
 			var markers = [];
 
 			$.each( data.results.bindings, function( key, result ) {
-				var lat = result.lat.value,
-					lon = result.lon.value;
-
 				markers.push(
-					L.circle( [lat, lon], 8, {
-						color: '#ed2700',
-						opacity: 0.9,
-						fillColor: '#ed2700',
-						fillOpacity: 0.9
-					} ).bindPopup( view.getPopupHtml( result ) )
+					L.circle( [result.lat.value, result.lon.value], {
+							radius: 10
+						} )
+						.bindPopup( view.getPopupHtml( result ) )
 				);
 			} );
 
-			return L.featureGroup( markers );
+			return L.featureGroup( markers ).setStyle( {
+				color: '#ed2700',
+				opacity: 0.9,
+				fillColor: '#ed2700',
+				fillOpacity: 0.9
+			} );
 		}
 	};
 
