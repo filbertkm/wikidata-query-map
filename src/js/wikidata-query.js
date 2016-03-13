@@ -18,6 +18,7 @@ function WikidataQuery() {
 			'?coordinate psv:P625 ?coordinate_node . ' +
 			'?coordinate_node wikibase:geoLatitude ?lat . ' +
 			'?coordinate_node wikibase:geoLongitude ?lon . ' +
+			'?coordinate_node wikibase:geoGlobe wd:Q2 ' +
 				'SERVICE wikibase:label { ' +
 					'bd:serviceParam wikibase:language "en" . ' +
 					'?item rdfs:label ?name ' +
