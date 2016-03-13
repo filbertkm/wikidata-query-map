@@ -108,9 +108,7 @@
 
 			$.each( data.results.bindings, function( key, result ) {
 				markers.push(
-					L.circle( [result.lat.value, result.lon.value], {
-							radius: 10
-						} )
+					L.circle( [result.lat.value, result.lon.value], 10, {} )
 						.bindPopup( view.getPopupHtml( result ) )
 				);
 			} );
