@@ -41,13 +41,13 @@ module.exports = function ( grunt ) {
 			},
 			leaflet: {
 				expand: true,
-				cwd: 'node_modules/leaflet/dist',
+				cwd: 'node_modules/leaflet/public',
 				src: [ '**' ],
 				dest: 'public/leaflet/'
 			}
 		},
 		browserify: {
-			dist: {
+			public: {
 				files: {
 					'public/js/map.js': [ 'src/js/map.js' ]
 				}

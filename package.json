@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
     "prestart": "grunt build",
+    "start": "node app.js",
     "test": "grunt test"
   },
   "author": "Katie Filbert",
